@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,10 +26,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,6 +82,16 @@ fun Home() {
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
+                // Animação de escala e opacidade
+                val scale by animateFloatAsState(
+                    targetValue = if (pagerState.currentPage == page) 1.1f else 1f,
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 500)
+                )
+
+                var alpha = animateFloatAsState(
+                    targetValue = if (pagerState.currentPage == page) 1f else 0.7f,
+                    animationSpec = androidx.compose.animation.core.tween(durationMillis = 500)
+                ).value
 
                 Image(
                     painter = painterResource(pagerItems[page]),
@@ -90,6 +103,11 @@ fun Home() {
                         .padding(5.dp)
                         .clickable {
                             Toast.makeText(context, "Image: $page", Toast.LENGTH_LONG).show()
+                        }
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            alpha = alpha
                         },
                     contentScale = ContentScale.Crop
                 )
@@ -112,18 +130,14 @@ fun Home() {
                             .padding(0.dp, 5.dp, 0.dp, 0.dp),
                         textAlign = TextAlign.Center
                     )
-
                 }
-
             }
-
         }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
-        )
-        {
+        ) {
 
             repeat(pagerState.pageCount) { index ->
                 val color = if (pagerState.currentPage == index) Color.DarkGray
@@ -135,20 +149,14 @@ fun Home() {
                         .clip(CircleShape)
                         .background(color = color)
                         .size(16.dp)
-                ) {
-
-                }
+                ) {}
             }
-
         }
-
     }
-
 }
 
 @Preview
 @Composable
 fun HomePreview() {
-
     Home()
 }
